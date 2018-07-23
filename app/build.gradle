@@ -12,6 +12,8 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags ""
+                //for lame to build
+                cFlags "-DSTDC_HEADERS -DSTDC_HEADERS -DHAVE_MPGLIB"
             }
         }
     }

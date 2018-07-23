@@ -1,5 +1,6 @@
 package com.example.riccardo.audiotest;
 
+import android.content.res.AssetManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,9 +10,7 @@ import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import java.util.Locale;
 import java.util.Timer;
-import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -22,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Button button1;
     private Button button2;
+    private Button buttonMP3;
 
     private boolean isButton1Interacting=false;
     private boolean isButton2Interacting=false;
@@ -33,6 +33,8 @@ public class MainActivity extends AppCompatActivity {
     private double toneFreq2;
 
     private final double VOLUME = 0.25;
+
+    static AssetManager assetManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,12 +66,12 @@ public class MainActivity extends AppCompatActivity {
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 switch (motionEvent.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        isButton1Interacting=true;
+                        isButton1Interacting = true;
                         AudioEngine.setToneOn(1, true);
                         break;
                     case MotionEvent.ACTION_UP:
                     case MotionEvent.ACTION_CANCEL:
-                        isButton1Interacting=false;
+                        isButton1Interacting = false;
                         AudioEngine.setToneOn(1, false);
                         break;
                     case MotionEvent.ACTION_MOVE:
@@ -90,20 +92,48 @@ public class MainActivity extends AppCompatActivity {
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 switch (motionEvent.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        isButton2Interacting=true;
+                        isButton2Interacting = true;
                         AudioEngine.setToneOn(2, true);
                         break;
                     case MotionEvent.ACTION_UP:
                     case MotionEvent.ACTION_CANCEL:
-                        isButton2Interacting=false;
+                        isButton2Interacting = false;
                         AudioEngine.setToneOn(2, false);
                         break;
                     case MotionEvent.ACTION_MOVE:
                         Log.d("DEBUG", "2: " + motionEvent.getX(motionEvent.getPointerCount() - 1));
-                        double newFreq = toneFreq2 + (motionEvent.getX(motionEvent.getPointerCount() - 1)-500) / 10;
+                        double newFreq = toneFreq2 + (motionEvent.getX(motionEvent.getPointerCount() - 1) - 500) / 10;
                         freqLabel2.setText("Frequency: " + (int) newFreq);
                         seekBar2.setProgress((int) newFreq, true);
                         AudioEngine.resetTone(2, newFreq, VOLUME);
+                        break;
+                }
+                return false;
+            }
+        });
+
+        assetManager = getAssets();
+
+        buttonMP3 = findViewById(R.id.button3);
+        buttonMP3.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        boolean created = false;
+                        if (!created) {
+                            //int CDECL hip_decode( hip_t           gfp
+                            AudioEngine.createAssetAudioPlayer(assetManager, "track39CBR320.mp3");
+                        }
+                        if (created) {
+                            //isPlayingAsset = !isPlayingAsset;
+                            //setPlayingAssetAudioPlayer(isPlayingAsset);
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        break;
+                    case MotionEvent.ACTION_MOVE:
                         break;
                 }
                 return false;

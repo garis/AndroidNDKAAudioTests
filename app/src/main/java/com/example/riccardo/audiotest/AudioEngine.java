@@ -1,12 +1,15 @@
 package com.example.riccardo.audiotest;
 
+import android.content.res.AssetManager;
+
 public enum AudioEngine {
 
     INSTANCE;
 
     // Load native library
     static {
-        System.loadLibrary("audioengine-lib");
+        System.loadLibrary("audio_engine-lib");
+        System.loadLibrary("lame_mp3-lib");
     }
 
     /**
@@ -22,4 +25,6 @@ public enum AudioEngine {
     static native void setAudioDeviceId(int deviceId);
     static native void setBufferSizeInBursts(int bufferSizeInBursts);
     static native double getCurrentOutputLatencyMillis();
+
+    static native boolean createAssetAudioPlayer(AssetManager assetManager, String filename);
 }
