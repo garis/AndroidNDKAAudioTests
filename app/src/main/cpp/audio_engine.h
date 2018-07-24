@@ -41,6 +41,7 @@ private:
 
     int32_t playbackDeviceId_ = AAUDIO_UNSPECIFIED;
     int32_t sampleRate_;
+    int32_t mySampleRate_;
     int16_t sampleChannels_;
     aaudio_format_t sampleFormat_;
 
@@ -59,7 +60,6 @@ private:
 
     double currentOutputLatencyMillis_ = 0;
 
-    //Mp3ToPcm *mp3_file_decoder;
     MP3Decoder *mp3_file;
 
 private:
@@ -76,6 +76,8 @@ private:
     void prepareSoundGenerators();
 
     aaudio_result_t calculateCurrentOutputLatencyMillis(AAudioStream *stream, double *latencyMillis);
+
+    int fillTempAudioBuffer(MP3Decoder *mp3_file);
 
 };
 

@@ -1,8 +1,10 @@
 #include <android/asset_manager.h>
 #include "MP3Decoder.h"
 #include "lame-3.100_libmp3lame/lame.h"
+#include "logging_macros.h"
+//#include <time.h>
 
-MP3Decoder::MP3Decoder(const char *filename, AAsset *assetVar) {
+MP3Decoder::MP3Decoder(const char *filename, AAsset *assetVar, bool loadAll) {
     this->filename = filename;
 
     asset=assetVar;
@@ -17,6 +19,7 @@ MP3Decoder::MP3Decoder(const char *filename, AAsset *assetVar) {
     hip = hip_decode_init();
 
     playing=true;
+    loadAllFile=loadAll;
     readHeaders();
 }
 
@@ -29,6 +32,26 @@ MP3Decoder::~MP3Decoder() {
 bool MP3Decoder::isPlaying(){
     return playing;
 }
+
+char* MP3Decoder::getInfo(int id) {
+    //char *ch = new char;
+    char ch[1000];
+
+    if (id == 0) {
+        snprintf(ch, sizeof(ch), "NumSamples: %d", this->getNumSamples());
+    } else if (id == 1) {
+        snprintf(ch, sizeof(ch), "SampleRate: %d", this->getSampleRate());
+    } else if (id == 2) {
+        snprintf(ch, sizeof(ch), "NumChannels: %d", this->getNumChannels());
+    } else if (id == 3) {
+        snprintf(ch, sizeof(ch), "NumBits: %d", this->getNumBits());
+    } else{
+        snprintf(ch, sizeof(ch), "NONE");
+    }
+    return &ch[0];
+
+}
+
 
 //int AAsset_read(
 //AAsset *asset,
@@ -79,7 +102,7 @@ int MP3Decoder::decodeChunk() {
     short pcm_buffer_r[PCM_SIZE];
 
     //read = fread(mp3_buffer, sizeof(unsigned char), MP3_SIZE, mp3);
-    readValue = AAsset_read(asset,mp3_buffer,712);//1024
+    readValue = AAsset_read(asset,mp3_buffer,1024);
 
     decoded = hip_decode(hip, mp3_buffer, readValue, pcm_buffer_l, pcm_buffer_r);
 
@@ -92,19 +115,32 @@ int MP3Decoder::decodeChunk() {
 }
 
 int MP3Decoder::read(float *buf, int len) {
-    if (buffer.empty()) {
-        if (decodeChunk() == 0) {
-            return 0;
+
+    //clock_t tStart = clock();
+    if (buffer.empty() | buffer.size() < len) {
+        if (!loadAllFile) {
+            if (decodeChunk() == 0)
+                return 0;
+
+        } else {
+            int i = 0;
+            while (decodeChunk() != 0) {
+                i++;
+            }
         }
     }
 
     int i;
 
     for (i = 0; !buffer.empty() && i < len; i++) {
-        buf[i] = buffer.at(0)*8;//VOLUME
-        buffer.erase(buffer.begin());
+        //buf[i] = buffer.at(0)*8;//VOLUME
+        //buffer.erase(buffer.begin());
+        buf[i] = buffer.at(i) * 8;//VOLUME
     }
-
+    if (!buffer.empty()) {
+        buffer.erase(buffer.begin(), buffer.begin() + i);
+    }
+    //LOGE("Time taken: %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
     return i;
 }
 

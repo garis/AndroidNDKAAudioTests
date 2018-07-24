@@ -29,13 +29,14 @@ protected:
     AAsset *asset;
     int fd;
 
-    bool playing=false;
+    bool playing;
+    bool loadAllFile;
 
     void readHeaders();
     int decodeChunk();
 
 public:
-    MP3Decoder(const char *filename, AAsset *assetVar);
+    MP3Decoder(const char *filename, AAsset *assetVar, bool loadAll);
     ~MP3Decoder();
 
     int eof() const;
@@ -43,6 +44,8 @@ public:
     void rewind();
 
     bool isPlaying();
+
+    char* getInfo(int id);
 
 private:
     int readValue;

@@ -10,12 +10,16 @@
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 
+#include <android/trace.h>
+
 //costruttore
 AudioEngine::AudioEngine() {
 
     // Initialize the trace functions, this enables you to output trace statements without
     // blocking. See https://developer.android.com/studio/profile/systrace-commandline.html
     Trace::initialize();
+
+    mySampleRate_=44100;
 
     sampleChannels_ = kStereoChannelCount;
     sampleFormat_ = AAUDIO_FORMAT_PCM_FLOAT;
@@ -24,8 +28,7 @@ AudioEngine::AudioEngine() {
     // we want the stream to be created using the default playback audio device.
     createPlaybackStream();
 
-    mp3_file= nullptr;
-    //mp3_file_decoder = new Mp3ToPcm();
+    mp3_file = nullptr;
 }
 
 AudioEngine::~AudioEngine(){//It's the destructor, it destroys the instance, frees up memory, etc. etc.
@@ -35,7 +38,7 @@ AudioEngine::~AudioEngine(){//It's the destructor, it destroys the instance, fre
     //delete sineOsc2_;
     delete sound_gen1;
     delete sound_gen2;
-    //delete mp3_file_decoder;
+    delete mp3_file;
 }
 
 /**
@@ -204,6 +207,8 @@ void AudioEngine::setupPlaybackStreamParameters(AAudioStreamBuilder *builder) {
     AAudioStreamBuilder_setFormat(builder, sampleFormat_);
     AAudioStreamBuilder_setChannelCount(builder, sampleChannels_);
 
+    AAudioStreamBuilder_setSampleRate(builder, mySampleRate_);
+
     // We request EXCLUSIVE mode since this will give us the lowest possible latency.
     // If EXCLUSIVE mode isn't available the builder will fall back to SHARED mode.
     AAudioStreamBuilder_setSharingMode(builder, AAUDIO_SHARING_MODE_EXCLUSIVE);
@@ -264,6 +269,8 @@ aaudio_data_callback_result_t AudioEngine::dataCallback(AAudioStream *stream,
                                                             int32_t numFrames) {
     assert(stream == playStream_);
 
+    ATrace_beginSection("myExpensiveFunction");
+
     //controlla che il buffer non sia mai stato vuoto
     int32_t underrunCount = AAudioStream_getXRunCount(playStream_);
     aaudio_result_t bufferSize = AAudioStream_getBufferSizeInFrames(playStream_);
@@ -317,10 +324,11 @@ aaudio_data_callback_result_t AudioEngine::dataCallback(AAudioStream *stream,
     memset(static_cast<uint8_t *>(audioData), 0,
            sizeof(float) * samplesPerFrame * numFrames);
 
-    if(mp3_file!= nullptr && mp3_file->isPlaying()) {
-        //TODO buffer di chunk, copia in audioData e se c'e' spazio fai una nuova read
-        int i = mp3_file->read(static_cast<float *>(audioData), (int) numFrames * 2);
-        LOGD("%d\tVS %d\tmp3_file->read", i, numFrames);
+    if((mp3_file!= NULL) && (mp3_file->isPlaying()))
+    {
+        int i = mp3_file->read(static_cast<float *>(audioData), (int) numFrames*2);
+        //LOGD("%d\tVS %d\tmp3_file->read", i, numFrames);
+
     }
     //mixing the sounds
     if (isTone1On_) {
@@ -333,6 +341,7 @@ aaudio_data_callback_result_t AudioEngine::dataCallback(AAudioStream *stream,
     calculateCurrentOutputLatencyMillis(stream, &currentOutputLatencyMillis_);
 
     Trace::endSection();
+    ATrace_endSection();
     return AAUDIO_CALLBACK_RESULT_CONTINUE;
 }
 
@@ -384,8 +393,14 @@ bool AudioEngine::createAssetAudioPlayer(AAsset *asset, const char* filename) {
     //assert(0 <= fd);
     //AAsset_close(asset);
 
-    mp3_file = new MP3Decoder(filename, asset);
-    LOGD("File: %s", asset);
+    if (mp3_file != NULL)
+        delete mp3_file;
+
+    mp3_file = new MP3Decoder(filename, asset, true);
+    LOGD("INFO:%s", mp3_file->getInfo(0));
+    LOGD("INFO:%s", mp3_file->getInfo(1));
+    LOGD("INFO:%s", mp3_file->getInfo(2));
+    LOGD("INFO:%s", mp3_file->getInfo(3));
 
     return true;
 }
