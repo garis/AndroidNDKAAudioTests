@@ -117,7 +117,7 @@ int MP3Decoder::decodeChunk() {
 int MP3Decoder::read(float *buf, int len) {
 
     //clock_t tStart = clock();
-    if (buffer.empty() | buffer.size() < len) {
+    if (buffer.empty() | (buffer.size() < len)) {
         if (!loadAllFile) {
             if (decodeChunk() == 0)
                 return 0;

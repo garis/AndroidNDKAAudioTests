@@ -269,7 +269,7 @@ aaudio_data_callback_result_t AudioEngine::dataCallback(AAudioStream *stream,
                                                             int32_t numFrames) {
     assert(stream == playStream_);
 
-    ATrace_beginSection("myExpensiveFunction");
+    //ATrace_beginSection("myExpensiveFunction");
 
     //controlla che il buffer non sia mai stato vuoto
     int32_t underrunCount = AAudioStream_getXRunCount(playStream_);
@@ -324,6 +324,8 @@ aaudio_data_callback_result_t AudioEngine::dataCallback(AAudioStream *stream,
     memset(static_cast<uint8_t *>(audioData), 0,
            sizeof(float) * samplesPerFrame * numFrames);
 
+
+
     if((mp3_file!= NULL) && (mp3_file->isPlaying()))
     {
         int i = mp3_file->read(static_cast<float *>(audioData), (int) numFrames*2);
@@ -340,8 +342,6 @@ aaudio_data_callback_result_t AudioEngine::dataCallback(AAudioStream *stream,
 
     calculateCurrentOutputLatencyMillis(stream, &currentOutputLatencyMillis_);
 
-    Trace::endSection();
-    ATrace_endSection();
     return AAUDIO_CALLBACK_RESULT_CONTINUE;
 }
 

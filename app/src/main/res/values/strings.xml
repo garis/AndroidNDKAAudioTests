@@ -1,3 +1,23 @@
 <resources>
     <string name="app_name">AudioTest</string>
+    <string name="title_activity_settings">Settings</string>
+    <!-- SECONDO HEADER: OPZIONI AVANZATE -->
+    <string name="advanced_options_activity_settings">Attiva o disattiva le opzioni avanzate</string>
+    <string name="second_header_activity_settings">Advanced Setting</string>
+    <string name="checkbox2_subtitle_activity_settings">Mostra o nascondi la barra di stato di un brano</string>
+    <string name="checkbox3_title_activity_settings">Import tape</string>
+    <string name="checkbox3_subtitle_activity_settings">Permette di importare brani</string>
+    <string name="checkbox4_title_activity_settings">Delete tape</string>
+    <string name="checkbox4_subtitle_activity_settings">Permette di eliminare brani</string>
+    <string name="checkbox5_title_activity_settings">Edit tape</string>
+    <string name="checkbox5_subtitle_activity_settings">Permette di modificare i dati di una singola canzone</string>
+    <string name="maintenance">Manutenzione tracce</string>
+
+    <string name="what_is_maintenance">Abilità opzioni di importazione, modifica e cancellazione brani</string>
+    <string name="change_password_title">Modifica password</string>
+    <string name="text1_subtitle_activity_settings">Path dove sono salvati gli Xml</string>
+    <string name="text1_title_activity_settings">Path</string>
+    <string name="where_we_export">Path dove verrà esportato il database</string>
+
+    <string name="export_in_xml">Export database in XML</string>
 </resources>

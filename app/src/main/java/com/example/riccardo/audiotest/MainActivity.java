@@ -1,5 +1,7 @@
 package com.example.riccardo.audiotest;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -36,10 +38,14 @@ public class MainActivity extends AppCompatActivity {
 
     static AssetManager assetManager;
 
+    protected Context context;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        this.context = MainActivity.this;
 
         mEngineCreated = AudioEngine.create();
         AudioEngine.setBufferSizeInBursts(0);//this will set the audio latency through the number of burst
@@ -123,7 +129,8 @@ public class MainActivity extends AppCompatActivity {
                         boolean created = false;
                         if (!created) {
                             //int CDECL hip_decode( hip_t           gfp
-                            AudioEngine.createAssetAudioPlayer(assetManager, "track39CBR320.mp3");
+                            //AudioEngine.createAssetAudioPlayer(assetManager, "track39CBR320.mp3");
+                            AudioEngine.createAssetAudioPlayer(assetManager, "song.mp3");
                         }
                         if (created) {
                             //isPlayingAsset = !isPlayingAsset;
@@ -134,6 +141,19 @@ public class MainActivity extends AppCompatActivity {
                     case MotionEvent.ACTION_CANCEL:
                         break;
                     case MotionEvent.ACTION_MOVE:
+                        break;
+                }
+                return false;
+            }
+        });
+
+        Button buttonTest = findViewById(R.id.buttonTest);
+        buttonTest.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        context.startActivity(new Intent(context, SettingsActivity.class));
                         break;
                 }
                 return false;
